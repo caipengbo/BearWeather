@@ -1,2 +1,15 @@
 # BearWeather
-Bear Weather, an Android Weather Application.
+
+贝尔天气, 一款简单的安卓天气应用。
+
+# 开始时间
+
+8/21/2017   
+
+# 结束时间
+
+# 功能
+
+
+
+
