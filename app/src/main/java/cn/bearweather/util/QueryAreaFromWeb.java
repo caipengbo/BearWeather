@@ -1,8 +1,6 @@
 package cn.bearweather.util;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -14,7 +12,7 @@ import com.android.volley.toolbox.Volley;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.bearweather.bean.Province;
+import cn.bearweather.bean.areabean.Province;
 
 /**
  * Created by Myth on 2017/8/21.

@@ -1,4 +1,4 @@
-package cn.bearweather.bean;
+package cn.bearweather.bean.areabean;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -14,4 +14,7 @@ public class District extends AreaBase {
         super.level = 3;
     }
 
+    public String getCode() {
+        return code;
+    }
 }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,16 +25,13 @@ import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-import org.w3c.dom.ls.LSInput;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.bearweather.R;
-import cn.bearweather.bean.AreaBase;
-import cn.bearweather.bean.City;
-import cn.bearweather.bean.District;
-import cn.bearweather.bean.Province;
+import cn.bearweather.bean.areabean.City;
+import cn.bearweather.bean.areabean.District;
+import cn.bearweather.bean.areabean.Province;
 
 
 /**

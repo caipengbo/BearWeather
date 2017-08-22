@@ -1,4 +1,4 @@
-package cn.bearweather.bean;
+package cn.bearweather.bean.areabean;
 
 import java.util.ArrayList;
 import java.util.List;

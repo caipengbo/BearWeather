@@ -1,4 +1,4 @@
-package cn.bearweather.bean;
+package cn.bearweather.bean.areabean;
 
 
 import com.google.gson.annotations.SerializedName;

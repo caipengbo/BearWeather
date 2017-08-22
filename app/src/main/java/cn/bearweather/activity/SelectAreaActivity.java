@@ -9,14 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.bearweather.R;
-import cn.bearweather.bean.City;
-import cn.bearweather.bean.District;
-import cn.bearweather.bean.Province;
+import cn.bearweather.bean.areabean.City;
+import cn.bearweather.bean.areabean.District;
+import cn.bearweather.bean.areabean.Province;
 import cn.bearweather.fragment.SelectAreaFragment;
 
 /**
@@ -98,7 +97,8 @@ public class SelectAreaActivity extends AppCompatActivity implements SelectAreaF
             case DISTRICT_LEVEL: {  // district页面 点击 直接返回MainActivity
                 selectedDistrict = selectedCity.getDistrictList().get(position);
                 Intent intent = new Intent();
-                intent.putExtra("info", selectedProvince.getName() + selectedCity.getName() + selectedDistrict.getName());
+                intent.putExtra("cityCode", selectedDistrict.getCode());
+                intent.putExtra("cityName", selectedDistrict.getName());
                 setResult(RESULT_OK,intent);
                 finish();
                 break;
