@@ -66,6 +66,7 @@ public class SelectAreaFragment extends Fragment implements AdapterView.OnItemCl
 
 
     private OnFragmentInteractionListener mListener;
+
     public SelectAreaFragment() {
         this.level = PROVINCE_LEVEL;
     }
