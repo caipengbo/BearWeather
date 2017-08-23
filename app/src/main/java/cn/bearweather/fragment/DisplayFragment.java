@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,6 +24,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.util.Random;
+
 import cn.bearweather.MainActivity;
 import cn.bearweather.R;
 import cn.bearweather.bean.weatherbean.Weather;
@@ -32,19 +35,20 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
     private SwipeRefreshLayout mSwipeLayout;
 
-    //天气控件
+    //天气显示 相关控件
 
+    private Button mNowDistrict; //（+ 地区）
+    private Button mShareButton;
     private TextView mNowTemperature;
+    private Button mNowCondition;  // 天气状况(含百科功能)
 
     private TextView mNowWind;
-
     private TextView mNowHumidy;
+    private TextView mNowPressure; // (hpa)
 
-    private TextView mNowPressure;
-
-    private TextView mNowAqi;
+    private Button mNowAqi;     //   空气质量/n 指数
+    // 与Activity交互使用
     private String currentCityCode;
-
     private DisplayFragment.OnFragmentInteractionListener mListener;
 
 
@@ -61,11 +65,15 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
         mSwipeLayout.setOnRefreshListener(this);
         // 获取天气控件
         //天气控件
-        mNowTemperature = (TextView)view.findViewById(R.id.now_temparature_text);
-        mNowWind= (TextView)view.findViewById(R.id.now_wind_text);
-        mNowHumidy= (TextView)view.findViewById(R.id.now_hum_text);
-        mNowPressure= (TextView)view.findViewById(R.id.now_press_text);
-        mNowAqi= (TextView)view.findViewById(R.id.now_aqi_text);
+        mNowDistrict = (Button) view.findViewById(R.id.district_text_button);
+        mShareButton = (Button) view.findViewById(R.id.share_button);
+        mNowTemperature = (TextView)view.findViewById(R.id.temp_text);
+        mNowCondition = (Button) view.findViewById(R.id.cond_text_button);
+        mNowWind= (TextView)view.findViewById(R.id.wind_text);
+        mNowHumidy= (TextView)view.findViewById(R.id.hum_text);
+        mNowPressure= (TextView)view.findViewById(R.id.press_text);
+        mNowAqi= (Button)view.findViewById(R.id.air_text_button);
+
         currentCityCode = getArguments().getString("cityCode");
         // 网络访问天气
         getWeatherFromWeb(currentCityCode);
@@ -93,14 +101,15 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
     }
 
     private void updateDisplay(Weather weather) {
-        mNowTemperature.setText(weather.getNow().getTmp() + " ℃");
+        mNowDistrict.setText("＋ " + weather.getBasic().getCity());
+        mNowTemperature.setText(weather.getNow().getTmp() + "℃");
+        mNowCondition.setText(weather.getNow().getCond().getTxt());
         mNowWind.setText(weather.getNow().getWind().getSc());
-        mNowHumidy.setText(weather.getNow().getHum());
-        mNowPressure.setText(weather.getNow().getPres());
+        mNowHumidy.setText(weather.getNow().getHum() + "%");
+        mNowPressure.setText(weather.getNow().getPres() + "hpa");
+
         if (weather.getAqi() != null) {
-            mNowAqi.setText(weather.getAqi().getCity().getQlty());
-        } else {
-            mNowAqi.setText("无数据");
+            mNowAqi.setText(weather.getAqi().getCity().getQlty() + "\n" + weather.getAqi().getCity().getAqi());
         }
         mListener.updateDrawerItem(Integer.parseInt(getArguments().getString("position")), weather);
     }
@@ -137,6 +146,7 @@ public class DisplayFragment extends Fragment implements SwipeRefreshLayout.OnRe
     public void onRefresh() {
         getWeatherFromWeb(currentCityCode);
         mSwipeLayout.setRefreshing(false);
+        Toast.makeText(getContext(), "天气已更新", Toast.LENGTH_SHORT).show();
     }
 
 }
