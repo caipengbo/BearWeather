@@ -39,7 +39,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentLeft="true"
                             android:background="@android:color/transparent"
-                            android:text="+ 沈阳市"
+                            android:text="+ 测试"
                             android:textColor="#FFFFFF"
                             android:textSize="30sp" />
 
@@ -56,7 +56,7 @@
 
 
                     <LinearLayout
-                        android:id="@+id/first_show_relativelayout"
+                        android:id="@+id/first_show_layout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/night5"
@@ -71,7 +71,7 @@
                                 android:id="@+id/temp_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="27℃"
+                                android:text="00℃"
                                 android:textColor="#FFFFFF"
                                 android:textSize="100sp" />
 
@@ -81,7 +81,7 @@
                                 android:layout_height="wrap_content"
                                 android:background="@android:color/transparent"
                                 android:gravity="center_vertical"
-                                android:text="晴"
+                                android:text="测试"
                                 android:textColor="#FFFFFF"
                                 android:textSize="20sp" />
                         </LinearLayout>
@@ -91,31 +91,41 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
-
+                            <ImageView
+                                android:layout_width="35dp"
+                                android:layout_height="35dp"
+                                android:src="@drawable/wind"
+                                />
                             <TextView
                                 android:id="@+id/wind_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="1级 "
+                                android:text="测试"
                                 android:textColor="#FFFFFF"
                                 android:textSize="25sp" />
-
+                            <ImageView
+                                android:layout_width="35dp"
+                                android:layout_height="35dp"
+                                android:src="@drawable/wet"/>
                             <TextView
                                 android:id="@+id/hum_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="92% "
+                                android:text="00% "
                                 android:textColor="#FFFFFF"
                                 android:textSize="25sp" />
-
+                            <ImageView
+                                android:layout_width="35dp"
+                                android:layout_height="35dp"
+                                android:src="@drawable/air_press"/>
                             <TextView
                                 android:id="@+id/press_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="1010hPa"
+                                android:text="0000hPa"
                                 android:textColor="#FFFFFF"
                                 android:textSize="25sp" />
 
@@ -148,6 +158,7 @@
                         android:textSize="45sp" />
 
                     <LinearLayout
+                        android:id="@+id/threehours_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/morning4"
@@ -302,6 +313,7 @@
                         android:src="@drawable/t3" />
 
                     <LinearLayout
+                        android:id="@+id/threedays_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/morning4"
@@ -457,6 +469,7 @@
                         android:src="@drawable/tf4" />
 
                     <LinearLayout
+                        android:id="@+id/life_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/noon4"
