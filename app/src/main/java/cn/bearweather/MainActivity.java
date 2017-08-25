@@ -5,10 +5,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -41,25 +38,25 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import org.litepal.crud.DataSupport;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.Bind;
+
 import cn.bearweather.activity.SelectAreaActivity;
-import cn.bearweather.activity.WelcomeActivity;
+
 import cn.bearweather.adapter.WeatherAdapter;
+import cn.bearweather.bean.dbbean.Item;
 import cn.bearweather.bean.weatherbean.Basic;
 import cn.bearweather.bean.weatherbean.Now;
 import cn.bearweather.bean.weatherbean.Weather;
 import cn.bearweather.fragment.DisplayFragment;
+import cn.bearweather.widget.UpdateWidgetService;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener, DisplayFragment.OnFragmentInteractionListener, AdapterView.OnItemLongClickListener {
 
-    private LocationManager locationManager;
-    private String provider;
-
     private Button mSelectButton;
-
 
     LinearLayout mDrawerLinearLayout;
     private DrawerLayout mDrawerLayout;
@@ -84,12 +81,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         mCityListView.setOnCreateContextMenuListener(this);
         mSelectButton = (Button) findViewById(R.id.select_button);
 
-//        openGPSSettings();
-//        Location location = getLocation();
-//
-//        double longitude = location.getLongitude(); // 经度
-//        double latitude = location.getLatitude(); // 维度
-
+        // TODO 初次打开，定位当前位置
         createFragment(123.433, 41.7017);
 
         mSelectButton.setOnClickListener(new View.OnClickListener() {
@@ -99,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 startActivityForResult(intent, 100);
             }
         });
+
+
+
     }
 
     @Override
@@ -107,7 +102,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
             String cityName = data.getStringExtra("cityName");
             String cityCode = data.getStringExtra("cityCode");
-
             // 将选择的数据插入datalist
             Weather weather = new Weather();
             weather.setBasic(new Basic());
@@ -201,6 +195,30 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int size = dataList.size();
         if (size == 0) {
             dataList.add(weather);
+            // 在dataList中插入一条item之后，就从数据库中查询并原来保存的信息
+            for (Item item : DataSupport.findAll(Item.class)) {
+                Weather w = new Weather();
+                Basic b = new Basic();
+                b.setId(item.getCode());
+                b.setCity(item.getName());
+                w.setBasic(b);
+                Now n = new Now();
+                n.setTmp(item.getTemp());
+                Now.CondBean cond = new Now.CondBean();
+                cond.setCode(item.getIcon());
+                n.setCond(cond);
+                w.setNow(n);
+                Log.d("", "读取数据库:" + w);
+                // 与widget 服务交互
+                dataList.add(w);
+                // 与Widget交互的服务
+                Intent intent = new Intent(MainActivity.this, UpdateWidgetService.class);
+                intent.putExtra("city", dataList.get(0).getBasic().getCity()); //
+                intent.putExtra("tmp", dataList.get(0).getNow().getTmp()); //
+                startService(intent);
+
+
+            }
         } else if (size <= position) {
             Toast.makeText(MainActivity.this, "该城市已从列表删除，无法更新", Toast.LENGTH_SHORT).show();
             return;
@@ -212,159 +230,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         weatherAdapter.notifyDataSetChanged();
     }
 
-
-    private void openGPSSettings() {
-        LocationManager alm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (alm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) {
-            Toast.makeText(this, "GPS模块正常", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(this, "请开启GPS！", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
-        startActivityForResult(intent, 0); //此为设置完成后返回到获取界面
-    }
-
-    private Location getLocation() {
-        Location location = null;
-        // 获取位置管理服务
-        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        // 查找到服务信息
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE); // 高精度
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-        criteria.setCostAllowed(true);
-        criteria.setPowerRequirement(Criteria.POWER_LOW); // 低功耗
-        String provider = locationManager.getBestProvider(criteria, true); // 获取GPS信息
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("", "getLocation: 未授权-----");
-            // 没有获得授权，申请授权
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            /*返回值：
-            如果app之前请求过该权限,被用户拒绝, 这个方法就会返回true.
-            如果用户之前拒绝权限的时候勾选了对话框中”Don’t ask again”的选项,那么这个方法会返回false.
-            如果设备策略禁止应用拥有这条权限, 这个方法也返回false.
-            弹窗需要解释为何需要该权限，再次请求授权*/
-                Toast.makeText(MainActivity.this, "请授权！", Toast.LENGTH_LONG).show();
-                // 帮跳转到该应用的设置界面，让用户手动授权
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
-            } else {
-                // 不需要解释为何需要该权限，直接请求授权
-                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
-        } else {
-            locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-            // 获取location对象
-            location = getBestLocation(locationManager);
-            // 通过GPS获取位置
-            updateToNewLocation(location);
-            locationManager.requestLocationUpdates(provider, 100 * 1000, 500, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-                    Log.e("", "纬度：" + location.getLatitude());
-                    Log.e("", "经度：" + location.getLongitude());
-                    Log.e("", "海拔：" + location.getAltitude());
-                    Log.e("", "时间：" + location.getTime());
-                }
-
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-
-                }
-            });
-
-        }
-        return location;
-    }
-
-    private void updateToNewLocation(Location location) {
-        if (location != null) {
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            Toast.makeText(MainActivity.this, "维度：" + latitude + " 经度" + longitude, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(MainActivity.this, "无法获取地理信息", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // 处理权限申请的回调
+    // 每次退出的时候，都清空原来的数据库内容
+    // 将收藏列表[从下标1(如果有)开始,因为第一个是定位的城市，是更新和改变的] 保存在数据库之中(更新数据库)
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // 授权成功，继续打电话
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        Location location = locationManager.getLastKnownLocation(provider); // 通过GPS获取位置
-                        updateToNewLocation(location);
-                        // 设置监听器，自动更新的最小时间为间隔N秒(1秒为1*1000，这样写主要为了方便)或最小位移变化超过N米
-                        locationManager.requestLocationUpdates(provider, 100 * 1000, 500, new LocationListener() {
-                            @Override
-                            public void onLocationChanged(Location location) {
-                                Log.e("", "纬度：" + location.getLatitude());
-                                Log.e("", "经度：" + location.getLongitude());
-                                Log.e("", "海拔：" + location.getAltitude());
-                                Log.e("", "时间：" + location.getTime());
-                            }
-
-                            @Override
-                            public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                            }
-
-                            @Override
-                            public void onProviderEnabled(String provider) {
-
-                            }
-
-                            @Override
-                            public void onProviderDisabled(String provider) {
-
-                            }
-                        });
-                    }
-                }
-                break;
+    protected void onDestroy() {
+        // 清空原数据库内容
+        DataSupport.deleteAll(Item.class);
+        // 更新
+        int size = dataList.size();
+        if (size > 1) {
+            for (int i = 1; i < size; i++) {
+                Item item = new Item();
+                item.setCode(dataList.get(i).getBasic().getId());
+                item.setIcon(dataList.get(i).getNow().getCond().getCode());
+                item.setTemp(dataList.get(i).getNow().getTmp());
+                item.setName(dataList.get(i).getBasic().getCity());
+                Log.d("", "存数据库--------: " + item);
+                item.save();
             }
         }
+        super.onDestroy();
     }
-
-    private Location getBestLocation(LocationManager locationManager) {
-        Location result = null;
-        if (locationManager != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return null;
-            }
-            result = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (result != null) {
-                return result;
-            } else {
-                result = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                return result;
-            }
-        }
-        return result;
-    }
-
 }

@@ -20,6 +20,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
+        android:name="org.litepal.LitePalApplication"
         android:allowBackup="true"
         android:icon="@mipmap/bear_weather_launcher_icon"
         android:label="@string/chinese_app_name"
@@ -28,8 +29,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="Bear Weather">
-        </activity>
+            android:label="Bear Weather" />
         <activity android:name=".activity.SelectAreaActivity" />
         <!-- ShareSDK Activity Begin -->
         <activity
@@ -63,6 +63,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="Mob-AppKey"
             android:value="205ef5e97ec8c" />
@@ -78,6 +79,21 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".widget.WeatherAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_app_widget_info" />
+        </receiver>
+
+        <service
+            android:name=".widget.UpdateWidgetService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

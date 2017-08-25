@@ -74,4 +74,9 @@ public class Weather {
     public void setSuggestion(Suggestion suggestion) {
         this.suggestion = suggestion;
     }
+
+    @Override
+    public String toString() {
+        return basic.getCity() + "  " + now.getCond().getTxt();
+    }
 }
